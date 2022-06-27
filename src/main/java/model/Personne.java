@@ -35,7 +35,7 @@ public class Personne {
     private Boolean actif = true;
 
     /**
-     * Constructeur par défaut (requis par JPA si on définit un constructeur
+     * Constructeur par sans arguments (requis par JPA si on définit un constructeur
      * personnalisé)
      */
     public Personne() {
@@ -59,7 +59,7 @@ public class Personne {
     @Override
     public String toString() {
         return "Personne [id=" + id + ", nom=" + nom + ", prenom=" + prenom + ", genre="
-                + genre + "]";
+                + genre + "]\n";
     }
     
     // Getters & Setters ----------------------------

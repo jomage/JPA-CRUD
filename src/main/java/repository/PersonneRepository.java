@@ -2,7 +2,9 @@ package repository;
 
 import java.util.List;
 
+import exception.EntityHasNoIdException;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import model.Genre;
 import model.Personne;
 
@@ -47,10 +49,18 @@ public class PersonneRepository {
      * @return une liste de toutes les personnes enregistrées en base de données.
      */
     public static List<Personne> findAll() {
-        // TODO: à compléter
+        // On va chercher l'EM
+        EntityManager em = PersistenceHelper.getEntityManager();
         
-        // Utiliser une requête JPQL (exemple présent dans les slides)
-        return null;
+        // On commence une Query JPQL
+        TypedQuery<Personne> tq = em.createQuery(
+                // La requête JPQL
+                "SELECT p FROM Personne p",
+                // Le type de retour du resultat - en gros le FROM de la req
+                Personne.class);
+        
+        // Execute la requête et retourne LISTE de resultats
+        return tq.getResultList();
     }
     
     /**
@@ -59,12 +69,18 @@ public class PersonneRepository {
      * @return la personne mise à jour
      */
     public static Personne update(Personne personneUpdated) {
-        // TODO: à compléter
-        
         // utiliser merge
         // on peut aussi vérifier que la personne a bien une ID
         // et refuser la mise à jour si elle n'en a pas (optionnel)
-        return null;
+        if (personneUpdated == null || personneUpdated.getId() == null) {
+            throw new EntityHasNoIdException();
+        }
+
+        EntityManager em = PersistenceHelper.getEntityManager();
+        PersistenceHelper.beginTx(em);
+        Personne personneMerged = em.merge(personneUpdated);
+        PersistenceHelper.commitTxAndClose(em);
+        return personneMerged;
     }
     
     /**
@@ -74,9 +90,18 @@ public class PersonneRepository {
     public static void delete(Long id) {
         // TODO: à compléter
         
-        // 1ere étape est de "find" la personne et de vérifier si elle existe
-        // 2nd étape = delete
-        return;
+
+        EntityManager em = PersistenceHelper.getEntityManager();
+        PersistenceHelper.beginTx(em);
+
+        // 1ere étape est de "find" la personne
+        Personne personneToDelete = em.find(Personne.class, id);
+        //  et de vérifier si elle existe
+        if (personneToDelete != null) {
+            // 2nd étape = delete
+            em.remove(personneToDelete);
+        }
+        PersistenceHelper.commitTxAndClose(em);
     }
 
 }
